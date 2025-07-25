@@ -3,5 +3,6 @@ name = "rxx"
 version = "0.0.0"
 edition = "2024"
 license = "MIT"
+description = "reactive rust extensions"
 
 [dependencies]
