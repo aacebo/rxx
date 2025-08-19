@@ -1,25 +1,26 @@
 use crate::Stream;
 
-pub type Predicate<Item> = dyn Fn(Item) -> bool;
-
 pub trait IterStream<Item> {
-    fn filter<P>(&self, predicate: P) -> Self where P: Fn(Item) -> bool;
+    fn filter<P>(&self, predicate: P) -> Self
+    where
+        P: Fn(&Item) -> bool + 'static;
 }
 
 impl<Item> IterStream<Item> for Stream<&[Item], Vec<Item>>
 where
     Self: IntoIterator<Item = Item>,
+    Item: Clone,
 {
     fn filter<P>(&self, predicate: P) -> Self
     where
-        P: Fn(Item) -> bool,
+        P: Fn(&Item) -> bool + 'static,
     {
-        return Stream::new(move |input| {
-            let mut out = (self.action)(input.clone());
+        return Stream::<&[Item], Vec<Item>>::new(move |input| {
+            let mut out = vec![];
 
-            for item in out.into_iter() {
+            for item in input.iter() {
                 if !(predicate)(item) {
-                    // remove item
+                    out.push(item.clone());
                 }
             }
 
