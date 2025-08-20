@@ -6,7 +6,7 @@ pub trait IterStream<Item> {
         P: Fn(&Item) -> bool + 'static;
 }
 
-impl<Item> IterStream<Item> for Stream<&[Item], Vec<Item>>
+impl<Item> IterStream<Item> for Stream<Item, Vec<Item>>
 where
     Self: IntoIterator<Item = Item>,
     Item: Clone,
@@ -15,16 +15,13 @@ where
     where
         P: Fn(&Item) -> bool + 'static,
     {
-        return Stream::<&[Item], Vec<Item>>::new(move |input| {
-            let mut out = vec![];
+        let action = self.action.clone();
 
-            for item in input.iter() {
-                if !(predicate)(item) {
-                    out.push(item.clone());
-                }
-            }
-
-            return out;
+        return Stream::<Item, Vec<Item>>::new(move |input| {
+            return (action)(input)
+                .into_iter()
+                .filter(|item| predicate(item))
+                .collect::<Vec<Item>>();
         });
     }
 }

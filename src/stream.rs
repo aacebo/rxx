@@ -1,4 +1,4 @@
-use std::marker::PhantomData;
+use std::{marker::PhantomData, rc::Rc};
 
 pub struct Stream<In, Out>
 where
@@ -7,7 +7,7 @@ where
 {
     __in__: PhantomData<In>,
     __out__: PhantomData<Out>,
-    action: Box<dyn Fn(&In) -> Out>,
+    pub(crate) action: Rc<dyn Fn(&In) -> Out>,
 }
 
 impl<In, Out> Stream<In, Out>
@@ -19,7 +19,7 @@ where
         return Self {
             __in__: PhantomData,
             __out__: PhantomData,
-            action: Box::new(action),
+            action: Rc::new(action),
         };
     }
 
